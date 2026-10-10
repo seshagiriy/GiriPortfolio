@@ -1,0 +1,844 @@
+<title>Giri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#0b0f0c; --card:#111713; --card2:#141c15;
+  --ink:#f5f2e9; --stone3:#d6d3d1; --stone4:#a8a29e; --stone5:#78716c;
+  --leaf:#2f6b3a; --leaf2:#4c9a5a;
+  --gold:#d4a24c; --amber:rgba(212,162,76,1);
+  --mint:#6ee7b7; --mint-btn:#34d399; --emerald:#34d399;
+  --border:rgba(255,255,255,.1);
+  --fd:'Playfair Display',Georgia,serif;
+  --fb:'Inter',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:1rem;line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block;object-fit:cover}
+h1,h2,h3,h4,h5{font-family:var(--fd);line-height:1.05}
+button{cursor:pointer;font-family:var(--fb)}
+
+/* ── EFFECTS ─────────────────────────── */
+@keyframes shimmer{from{background-position:0% 50%}to{background-position:200% 50%}}
+.shimmer-text{
+  background:linear-gradient(90deg,var(--ink) 0%,var(--gold) 30%,var(--leaf2) 60%,var(--ink) 100%) 0% 0%/200% auto text;
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:shimmer 6s linear infinite;
+}
+.tech-grid{
+  background-image:linear-gradient(rgba(255,255,255,.043) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.043) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(black 40%,transparent 75%);
+  mask-image:radial-gradient(black 40%,transparent 75%);
+}
+.grain::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.85  0 0 0 0 0.7  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity:.35;mix-blend-mode:overlay;
+}
+.card-glow{box-shadow:0 0 40px rgba(47,107,58,.12)}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+
+/* ── NAV ──────────────────────────────── */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:200;background:rgba(11,15,12,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;gap:1.5rem;max-width:1280px;margin:auto;padding:.9rem 1.5rem}
+.nav-logo{display:flex;align-items:center;gap:.65rem;flex-shrink:0}
+.nav-logo-circle{width:36px;height:36px;border-radius:50%;background:var(--leaf);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-logo-circle svg{width:20px;height:20px}
+.nav-logo-text{display:flex;flex-direction:column;line-height:1.1}
+.nav-logo-name{font-family:var(--fd);font-size:1rem;font-weight:700;color:var(--ink)}
+.nav-logo-sub{font-size:.54rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--stone4)}
+.nav-links{display:flex;gap:0;list-style:none;flex:1;justify-content:center}
+.nav-links a{font-size:.77rem;font-weight:500;color:var(--stone3);padding:.35rem .65rem;transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--mint-btn);color:#0b0f0c;font-weight:700;font-size:.82rem;padding:.5rem 1.1rem;border-radius:100px;border:none;flex-shrink:0;transition:background .2s;white-space:nowrap}
+.nav-cta:hover{background:var(--mint)}
+.nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;padding:6px}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px}
+.nav-mobile{display:none;flex-direction:column;background:var(--card);border-top:1px solid var(--border);padding:1rem 1.5rem}
+.nav-mobile.open{display:flex}
+.nav-mobile a{padding:.55rem 0;font-size:.9rem;font-weight:500;color:var(--stone3);border-bottom:1px solid var(--border)}
+.nav-mobile a:last-child{border:none}
+.nav-mobile a:hover{color:var(--ink)}
+@media(max-width:960px){.nav-links{display:none}.nav-burger{display:flex}}
+@media(max-width:600px){.nav-cta{display:none}}
+
+/* ── HERO ──────────────────────────────── */
+.hero{min-height:100svh;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.hero-bg{position:absolute;inset:0}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center;opacity:.6}
+.hero-bg-grad{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(11,15,12,.6),rgba(11,15,12,.7) 50%,#0b0f0c)}
+.hero-bg-grid{position:absolute;inset:0}
+.hero-content{position:relative;z-index:1;max-width:1280px;margin:auto;padding:10rem 2.5rem 7rem;width:100%}
+.hero-eyebrow{display:flex;align-items:center;gap:.9rem;margin-bottom:1.5rem}
+.hero-eyebrow-line{width:32px;height:1.5px;background:rgba(212,162,76,.7)}
+.hero-eyebrow-text{font-size:.68rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:rgba(212,162,76,.9)}
+.hero-h1{font-family:var(--fd);font-size:clamp(3.5rem,8vw,6.5rem);font-weight:900;line-height:1.02;letter-spacing:-.02em;margin-bottom:2rem}
+.hero-h1 .hl-mint{color:var(--mint)}
+.hero-h1 .hl-gold{color:var(--gold)}
+.hero-desc{font-size:1.1rem;color:var(--stone3);line-height:1.75;max-width:680px;margin-bottom:2.5rem}
+.hero-desc .hl-mint{color:var(--mint)}
+.hero-desc .hl-gold{color:var(--gold)}
+.hero-desc .hl-ink{color:var(--ink)}
+.hero-btns{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:2.5rem}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.65rem 1.5rem;border-radius:100px;font-family:var(--fb);font-size:.875rem;font-weight:600;border:none;transition:all .2s;text-decoration:none;cursor:pointer}
+.btn-mint{background:var(--mint-btn);color:#0b0f0c}.btn-mint:hover{background:var(--mint)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--ink);border:1px solid rgba(255,255,255,.2)}.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.hero-badges{display:flex;gap:.75rem;flex-wrap:wrap}
+.hero-badge{font-size:.73rem;font-weight:500;padding:.3rem .75rem;border-radius:100px;border:1px solid var(--border);color:var(--stone3)}
+/* ticker */
+.ticker{position:relative;z-index:1;border-top:1px solid var(--border);padding:.75rem 0;overflow:hidden;margin-top:auto}
+.ticker-track{display:flex;white-space:nowrap;animation:tick 32s linear infinite}
+.ticker-track span{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--stone4);padding-right:2.5rem}
+.ticker-track .tdot{color:var(--mint)}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:768px){.hero-h1{font-size:clamp(2.8rem,10vw,4rem)}.hero-desc{font-size:.97rem}}
+
+/* ── ABOUT ──────────────────────────────── */
+.section{padding-block:7rem}
+.s-wrap{max-width:1280px;margin-inline:auto;padding-inline:2.5rem}
+.about-grid{display:grid;grid-template-columns:5fr 7fr;gap:3rem;align-items:center}
+.about-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.1)}
+.about-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.about-photo-grad{position:absolute;inset:0;background:linear-gradient(to top,#0b0f0c 0%,transparent 60%)}
+.about-photo-badge{position:absolute;bottom:1rem;left:1rem;right:1rem;display:flex;align-items:center;justify-content:space-between}
+.about-photo-loc .roots{font-size:.65rem;text-transform:uppercase;letter-spacing:.14em;color:var(--gold)}
+.about-photo-loc .place{font-family:var(--fd);font-size:1.4rem;font-weight:700}
+.farmer-badge{background:rgba(52,211,153,.9);color:#0b0f0c;font-size:.72rem;font-weight:700;padding:.25rem .7rem;border-radius:6px}
+.s-eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;margin-bottom:.9rem;display:block}
+.eyebrow-mint{color:var(--mint)}
+.eyebrow-gold{color:var(--gold)}
+.s-title{font-family:var(--fd);font-size:clamp(2.2rem,5vw,3.8rem);font-weight:900;line-height:1.1;margin-bottom:1.2rem}
+.about-body{font-size:1rem;color:var(--stone3);line-height:1.8;margin-bottom:1rem}
+.about-body .hl-mint{color:var(--mint)}.about-body .hl-gold{color:var(--gold)}.about-body .hl-ink{color:var(--ink)}
+.about-list{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:1.5rem}
+.about-item{display:flex;align-items:center;gap:.6rem;font-size:.83rem;color:var(--stone3);padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.about-item::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--mint);flex-shrink:0}
+@media(max-width:768px){.about-grid{grid-template-columns:1fr}}
+
+/* ── FARMING ──────────────────────────────── */
+.farming-grid{display:grid;grid-template-columns:6fr 6fr;gap:3rem;align-items:start}
+.farming-items{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.5rem}
+.fi-card{border-radius:12px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(135deg,rgba(52,211,153,.06),transparent);padding:1rem;display:flex;align-items:center;gap:.6rem;font-size:.85rem;color:var(--stone3);transition:border-color .2s}
+.fi-card:hover{border-color:rgba(110,231,183,.4)}
+.fi-card svg{width:16px;height:16px;color:var(--mint);flex-shrink:0}
+.farming-vision{background:rgba(47,107,58,.2);border:1px solid rgba(110,231,183,.15);border-radius:12px;padding:1.5rem}
+.farming-vision .vl{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.farming-vision h4{font-family:var(--fd);font-size:1.1rem;font-weight:700;margin-bottom:.35rem}
+.farming-vision p{font-size:.83rem;color:var(--stone4);line-height:1.6}
+/* photo collage */
+.farm-collage{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:280px 180px;gap:.75rem}
+.fc-main{grid-row:1;grid-column:1/3;border-radius:12px;overflow:hidden;position:relative}
+.fc-main img,.fc-sm img{width:100%;height:100%;object-fit:cover}
+.fc-sm{border-radius:12px;overflow:hidden;position:relative}
+.fc-seed{border-radius:12px;background:var(--card2);border:1px solid var(--border);display:flex;flex-direction:column;justify-content:space-between;padding:1.25rem}
+.fc-seed h4{font-family:var(--fd);font-size:1.3rem;font-weight:700;line-height:1.2}
+.fc-seed h4 .arr{color:var(--mint)}
+.fc-seed-ico{align-self:flex-end;width:30px;height:30px;background:var(--leaf);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.fc-seed-ico svg{width:14px;height:14px;color:#fff}
+@media(max-width:800px){.farming-grid{grid-template-columns:1fr}.farm-collage{grid-template-rows:220px 150px}}
+
+/* ── JOURNEY ──────────────────────────────── */
+.journey-head{text-align:center;margin-bottom:4rem}
+.journey-title .hl-gold{color:var(--gold)}
+.j-grid{display:grid;grid-template-columns:1fr 32px 1fr;column-gap:2rem;row-gap:1rem}
+.jl{grid-column:1}.jc{grid-column:2;display:flex;flex-direction:column;align-items:center}.jr{grid-column:3;padding-top:3rem}
+.jc .jdot{width:14px;height:14px;border-radius:50%;background:var(--gold);z-index:1;margin-block:.5rem}
+.jc .jline{width:1.5px;background:rgba(255,255,255,.08);flex:1;min-height:30px}
+.jcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.jcard-top{display:flex;align-items:center;gap:.75rem;margin-bottom:.9rem}
+.jcard-ico{width:32px;height:32px;border-radius:50%;background:var(--leaf);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.jcard-ico svg{width:14px;height:14px;color:#fff}
+.jcard-badge{font-size:.64rem;font-weight:700;padding:.18rem .5rem;border-radius:4px;background:rgba(110,231,183,.1);color:var(--mint);border:1px solid rgba(110,231,183,.2)}
+.jcard h3{font-family:var(--fd);font-size:1.15rem;font-weight:700;margin-bottom:.2rem}
+.jcard .jplace{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.jcard p{font-size:.84rem;color:var(--stone3);line-height:1.65}
+.jcard-future{border-color:rgba(212,162,76,.2);background:rgba(212,162,76,.04)}
+.jcard-future .jcard-badge{color:var(--gold);background:rgba(212,162,76,.1);border-color:rgba(212,162,76,.2)}
+.jcard-future .jdot-future{background:var(--gold)}
+@media(max-width:700px){.j-grid{grid-template-columns:1fr}.jl,.jr{grid-column:1}.jc{display:none}}
+
+/* ── SKILLS ──────────────────────────────── */
+.skills-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem;flex-wrap:wrap;gap:1.5rem}
+.skills-filters{display:flex;gap:.5rem}
+.sf{font-size:.78rem;font-weight:600;padding:.4rem .9rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--stone3);transition:all .2s}
+.sf.active,.sf:hover{background:var(--mint-btn);color:#0b0f0c;border-color:var(--mint-btn)}
+.sg-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.sg{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:border-color .2s}
+.sg:hover{border-color:rgba(255,255,255,.18)}
+.sg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:.8rem;border-bottom:1px solid var(--border)}
+.sg-name{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.sg-count{font-size:.67rem;font-weight:700;color:var(--stone5);padding:.15rem .4rem;border-radius:3px;background:rgba(255,255,255,.05)}
+.sk-list{display:flex;flex-wrap:wrap;gap:.4rem}
+.sk{font-size:.74rem;font-weight:500;padding:.26rem .6rem;border-radius:6px;background:rgba(255,255,255,.05);color:var(--stone3);border:1px solid rgba(255,255,255,.07)}
+@media(max-width:700px){.sg-grid{grid-template-columns:1fr}.skills-top{flex-direction:column;align-items:flex-start}}
+
+/* ── PROJECTS ──────────────────────────────── */
+.proj-header{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:2rem;margin-bottom:3rem}
+.proj-header-right{font-size:.97rem;color:var(--stone4);max-width:380px;line-height:1.7}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.pc{background:linear-gradient(135deg,rgba(52,211,153,.13),rgba(212,162,76,.07));border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:2rem;position:relative;overflow:hidden;transition:border-color .2s;display:flex;flex-direction:column;gap:1.25rem}
+.pc:hover{border-color:rgba(110,231,183,.4)}
+.pc.wide{grid-column:1/-1}
+.pc-header{display:flex;align-items:flex-start;justify-content:space-between}
+.pc-icon-wrap{width:44px;height:44px;border-radius:12px;background:rgba(11,15,12,.6);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pc-icon-wrap svg{width:20px;height:20px;color:var(--gold)}
+.pc-meta{margin-left:.85rem;flex:1}
+.pc-label{font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone3)}
+.pc-title{font-family:var(--fd);font-size:1.5rem;font-weight:700;margin-top:.15rem;line-height:1.15}
+.pc-num{font-family:var(--fd);font-size:2.5rem;font-weight:900;color:rgba(255,255,255,.1);line-height:1;flex-shrink:0}
+.pc-desc{font-size:.87rem;color:var(--stone4);line-height:1.7}
+.pc-tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.pt{font-size:.7rem;font-weight:600;padding:.22rem .55rem;border-radius:100px;background:rgba(255,255,255,.06);color:var(--stone3);border:1px solid rgba(255,255,255,.08)}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.07);padding-top:1rem;margin-top:auto}
+.pc-link{font-size:.8rem;font-weight:600;color:var(--mint);display:flex;align-items:center;gap:.35rem}
+.pc-link:hover{color:var(--mint-btn)}
+@media(max-width:700px){.proj-grid{grid-template-columns:1fr}.pc.wide{grid-column:1}}
+
+/* ── TRADING ──────────────────────────────── */
+.trading-head{margin-bottom:3rem}
+.pipeline{display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem;margin-bottom:1.5rem}
+.pipe-card{border-radius:10px;padding:1.25rem;border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:.75rem;transition:transform .2s}
+.pipe-card:hover{transform:translateY(-3px)}
+.pipe-card:nth-child(1){background:linear-gradient(160deg,#1a3a20,#0f2214)}
+.pipe-card:nth-child(2){background:linear-gradient(160deg,#1a3a35,#0f221e)}
+.pipe-card:nth-child(3){background:linear-gradient(160deg,#3a3010,#221e08)}
+.pipe-card:nth-child(4){background:linear-gradient(160deg,#3a1520,#22080f)}
+.pipe-card:nth-child(5){background:linear-gradient(160deg,#2a1540,#180a28)}
+.pipe-card:nth-child(6){background:linear-gradient(160deg,#2a3a15,#18220a)}
+.pipe-top{display:flex;justify-content:space-between;align-items:center}
+.pipe-ico{width:28px;height:28px;background:rgba(255,255,255,.08);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.pipe-ico svg{width:13px;height:13px;color:var(--stone3)}
+.pipe-n{font-size:.62rem;font-weight:700;color:var(--stone4)}
+.pipe-title{font-family:var(--fd);font-size:.95rem;font-weight:700}
+.pipe-desc{font-size:.72rem;color:var(--stone4);line-height:1.55}
+.pipe-arr{font-size:.75rem;color:var(--stone4);align-self:flex-end}
+.pipe-fb{text-align:center;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--stone5);padding:.7rem;border:1px solid var(--border);border-radius:8px;margin-bottom:2.5rem}
+.ta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.ta{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:1.25rem}
+.ta-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem}
+.ta h4{font-family:var(--fd);font-size:1rem;font-weight:700;margin-bottom:.35rem}
+.ta p{font-size:.8rem;color:var(--stone4);line-height:1.6}
+.disclaimer{background:rgba(255,255,255,.03);border:1px solid var(--border);border-left:2px solid var(--gold);border-radius:6px;padding:.85rem 1.1rem;margin-top:2rem;font-size:.78rem;color:var(--stone4);font-style:italic}
+@media(max-width:900px){.pipeline{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.pipeline{grid-template-columns:1fr 1fr}.ta-grid{grid-template-columns:1fr}}
+
+/* ── CONTENT ──────────────────────────────── */
+.content-head{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem;flex-wrap:wrap}
+.plat-btns{display:flex;gap:.6rem}
+.plat-btn{display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;padding:.45rem 1rem;border-radius:100px;border:1px solid var(--border);color:var(--stone3);background:transparent;transition:all .2s}
+.plat-btn:hover{border-color:var(--mint);color:var(--mint)}
+.plat-btn svg{width:14px;height:14px}
+.vid-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:3rem}
+.vid-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:transform .2s}
+.vid-card:hover{transform:translateY(-3px)}
+.vid-thumb{height:155px;position:relative;display:flex;align-items:center;justify-content:center}
+.vid-cat{position:absolute;top:.6rem;left:.6rem;font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.18rem .42rem;border-radius:3px;background:rgba(0,0,0,.5);color:rgba(255,255,255,.8)}
+.vid-play{width:40px;height:40px;border-radius:50%;background:#ff0000;display:flex;align-items:center;justify-content:center}
+.vid-play svg{width:15px;height:15px;color:#fff;margin-left:2px}
+.vid-info{padding:.85rem}
+.vid-title{font-size:.85rem;font-weight:600;line-height:1.35;margin-bottom:.25rem}
+.vid-date{font-size:.7rem;color:var(--stone4)}
+.vc-biz .vid-thumb{background:linear-gradient(135deg,#1a3a20,#0f2210)}
+.vc-mot .vid-thumb{background:linear-gradient(135deg,#3a2010,#220f08)}
+.vc-trd .vid-thumb{background:linear-gradient(135deg,#1a2a3a,#0f1522)}
+.vc-agr .vid-thumb{background:linear-gradient(135deg,#1a3a20,#2a5a30)}
+.vc-eco .vid-thumb{background:linear-gradient(135deg,#3a1030,#220820)}
+.vc-grw .vid-thumb{background:linear-gradient(135deg,#3a2a10,#221a08)}
+.reels-label{font-size:.78rem;font-weight:700;display:flex;align-items:center;gap:.6rem;color:var(--stone3);margin-bottom:1rem}
+.reels-label svg{width:15px;height:15px;color:#e1306c}
+.reels-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem}
+.reel{border-radius:8px;aspect-ratio:9/14;padding:.7rem;position:relative;overflow:hidden;transition:transform .2s}
+.reel:hover{transform:translateY(-3px)}
+.reel-cat{font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.16rem .38rem;border-radius:3px;background:rgba(0,0,0,.35);color:rgba(255,255,255,.85);align-self:flex-start;display:inline-block}
+.reel:nth-child(1){background:linear-gradient(160deg,#1a3a2a,#0d2018)}
+.reel:nth-child(2){background:linear-gradient(160deg,#3a1a40,#200d25)}
+.reel:nth-child(3){background:linear-gradient(160deg,#1a2a40,#0d1825)}
+.reel:nth-child(4){background:linear-gradient(160deg,#3a2a10,#221a08)}
+.reel:nth-child(5){background:linear-gradient(160deg,#3a1a30,#220d1e)}
+.reel:nth-child(6){background:linear-gradient(160deg,#3a1010,#220808)}
+@media(max-width:900px){.reels-grid{grid-template-columns:repeat(3,1fr)}.vid-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.vid-grid{grid-template-columns:1fr}.reels-grid{grid-template-columns:repeat(2,1fr)}.content-head{flex-direction:column}}
+
+/* ── DAILY ──────────────────────────────── */
+.daily-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.dc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}
+.dc-label{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mint);margin-bottom:.5rem}
+.dc h4{font-family:var(--fd);font-size:1.1rem;font-weight:700;margin-bottom:.4rem;line-height:1.2}
+.dc p{font-size:.83rem;color:var(--stone4);line-height:1.65}
+.dc-date{font-size:.68rem;color:var(--stone5);margin-top:.75rem}
+@media(max-width:700px){.daily-grid{grid-template-columns:1fr}}
+
+/* ── BLOG ──────────────────────────────── */
+.blog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem}
+.blog-link{font-size:.82rem;font-weight:600;color:var(--mint)}
+.blog-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.bcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.5rem;transition:border-color .2s}
+.bcard:hover{border-color:rgba(255,255,255,.2)}
+.bcard-cat{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+.bcard h3{font-family:var(--fd);font-size:1.1rem;font-weight:700;line-height:1.25;margin-bottom:.5rem}
+.bcard p{font-size:.83rem;color:var(--stone4);line-height:1.6;margin-bottom:1rem}
+.bcard-read{font-size:.78rem;font-weight:600;color:var(--mint)}
+@media(max-width:600px){.blog-grid{grid-template-columns:1fr}}
+
+/* ── CONTACT ──────────────────────────────── */
+.contact-inner{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.soc-btns{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:2rem}
+.soc-btn{display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:600;padding:.45rem .9rem;border-radius:100px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--stone3);transition:all .2s}
+.soc-btn svg{width:14px;height:14px;color:var(--mint);flex-shrink:0}
+.soc-btn:hover{border-color:rgba(212,162,76,.5);color:var(--ink)}
+.cf{display:flex;flex-direction:column;gap:1.4rem}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+.cf-field{display:flex;flex-direction:column;gap:.35rem}
+.cf-label{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone4)}
+.cf-input,.cf-textarea{background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.15);padding:.5rem 0;color:var(--ink);font-family:var(--fb);font-size:.9rem;outline:none;width:100%;transition:border-color .2s}
+.cf-input:focus,.cf-textarea:focus{border-color:var(--mint)}
+.cf-input::placeholder,.cf-textarea::placeholder{color:var(--stone5)}
+.cf-textarea{resize:none;min-height:90px}
+.cf-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.cf-footer-note{font-size:.78rem;color:var(--stone4)}
+.cf-btn{background:var(--mint-btn);color:#0b0f0c;font-weight:700;font-size:.85rem;padding:.6rem 1.35rem;border-radius:100px;border:none;display:flex;align-items:center;gap:.4rem;transition:background .2s}
+.cf-btn:hover{background:var(--mint)}
+.cf-ok{font-size:.85rem;color:var(--mint);display:none;margin-top:.5rem}
+.cf-ok.show{display:block}
+@media(max-width:700px){.contact-inner{grid-template-columns:1fr;gap:3rem}.cf-row{grid-template-columns:1fr}}
+
+/* ── FOOTER ──────────────────────────────── */
+footer{border-top:1px solid var(--border);padding-block:4rem 2rem}
+.ft-inner{max-width:1280px;margin-inline:auto;padding-inline:2.5rem;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3rem;margin-bottom:3rem}
+.ft-logo{display:flex;align-items:center;gap:.7rem;margin-bottom:1rem}
+.ft-logo-circle{width:38px;height:38px;border-radius:50%;background:var(--leaf);display:flex;align-items:center;justify-content:center}
+.ft-logo-name{font-family:var(--fd);font-size:1.2rem;font-weight:900}
+.ft-tagline{font-size:.82rem;font-weight:600;color:var(--stone3);margin-bottom:.5rem}
+.ft-desc{font-size:.8rem;color:var(--stone4);line-height:1.65;max-width:280px;margin-bottom:1.5rem}
+.ft-socials{display:flex;gap:.6rem}
+.ft-soc{width:34px;height:34px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--stone4);transition:all .2s}
+.ft-soc:hover{border-color:var(--mint);color:var(--mint)}
+.ft-soc svg{width:14px;height:14px}
+.ft-nav h5{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--stone4);margin-bottom:1rem}
+.ft-nav ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.ft-nav a{font-size:.82rem;color:var(--stone3);transition:color .2s}
+.ft-nav a:hover{color:var(--ink)}
+.ft-bottom{max-width:1280px;margin-inline:auto;padding-inline:2.5rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:1.5rem}
+.ft-bottom p{font-size:.75rem;color:var(--stone4)}
+@media(max-width:700px){.ft-inner{grid-template-columns:1fr;gap:2rem}.ft-bottom{flex-direction:column;text-align:center}}
+
+/* dividers */
+.border-t{border-top:1px solid var(--border)}
+</style>
+
+<!-- ── NAV ───────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#home" class="nav-logo">
+      <div class="nav-logo-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 3 8 9 8zM12 12c0-5 4-8 9-8 0 5-3 8-9 8z"/></svg>
+      </div>
+      <div class="nav-logo-text"><span class="nav-logo-name">Giri</span><span class="nav-logo-sub">Farm · Future</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li><li><a href="#about">About</a></li><li><a href="#farming">Farming</a></li>
+      <li><a href="#journey">Journey</a></li><li><a href="#skills">Skills</a></li><li><a href="#projects">Projects</a></li>
+      <li><a href="#trading">Trading</a></li><li><a href="#content">Content</a></li>
+      <li><a href="#daily">Diary</a></li><li><a href="#blog">Blog</a></li><li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Let's Talk →</a>
+    <button class="nav-burger" id="burgerBtn" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#home">Home</a><a href="#about">About</a><a href="#farming">Farming</a>
+    <a href="#journey">Journey</a><a href="#skills">Skills</a><a href="#projects">Projects</a>
+    <a href="#trading">Trading</a><a href="#content">Content</a><a href="#daily">Diary</a>
+    <a href="#blog">Blog</a><a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ── HERO ───────────────────────────── -->
+<section id="home" class="hero grain">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1620901433789-1d2f85a93653?auto=format&fit=crop&w=1800&q=80" alt="Farm at sunrise" loading="eager">
+    <div class="hero-bg-grad"></div>
+    <div class="hero-bg-grid tech-grid" style="position:absolute;inset:0"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-line"></div>
+      <span class="hero-eyebrow-text">Personal Website · Giri</span>
+    </div>
+    <h1 class="hero-h1 reveal in">
+      Hi, I'm <span class="shimmer-text">Giri</span>.<br>
+      <span>Farmer.</span> <span class="hl-mint">Builder.</span> <span class="hl-gold">Creator.</span> <span>Learner.</span>
+    </h1>
+    <p class="hero-desc reveal in" style="transition-delay:.1s">
+      From Farm to Future — building with agriculture, technology &amp; ambition.
+      I come from agriculture, but my ambitions go beyond the farm. I'm building my future through
+      <span class="hl-mint">technology</span>, <span class="hl-gold">entrepreneurship</span>,
+      <span class="hl-ink">content creation</span>, and continuous learning.
+    </p>
+    <div class="hero-btns reveal in" style="transition-delay:.2s">
+      <a href="#journey" class="btn btn-mint">Explore My Journey <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+      <a href="#projects" class="btn btn-ghost">My Projects</a>
+      <a href="#content" class="btn btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg> YouTube / Content</a>
+      <a href="#contact" class="btn btn-ghost">Contact Me</a>
+    </div>
+    <div class="hero-badges reveal in" style="transition-delay:.3s">
+      <span class="hero-badge">📍 Andhra Pradesh, India</span>
+      <span class="hero-badge">Building in public</span>
+      <span class="hero-badge">Rooted in Agriculture</span>
+    </div>
+  </div>
+  <div class="ticker">
+    <div class="ticker-track" aria-hidden="true">
+      <span>Agriculture <span class="tdot">✦</span></span><span>Technology <span class="tdot">✦</span></span><span>Entrepreneurship <span class="tdot">✦</span></span><span>Content Creation <span class="tdot">✦</span></span><span>Trading &amp; Automation <span class="tdot">✦</span></span>
+      <span>Agriculture <span class="tdot">✦</span></span><span>Technology <span class="tdot">✦</span></span><span>Entrepreneurship <span class="tdot">✦</span></span><span>Content Creation <span class="tdot">✦</span></span><span>Trading &amp; Automation <span class="tdot">✦</span></span>
+      <span>Agriculture <span class="tdot">✦</span></span><span>Technology <span class="tdot">✦</span></span><span>Entrepreneurship <span class="tdot">✦</span></span><span>Content Creation <span class="tdot">✦</span></span><span>Trading &amp; Automation <span class="tdot">✦</span></span>
+      <span>Agriculture <span class="tdot">✦</span></span><span>Technology <span class="tdot">✦</span></span><span>Entrepreneurship <span class="tdot">✦</span></span><span>Content Creation <span class="tdot">✦</span></span><span>Trading &amp; Automation <span class="tdot">✦</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ── ABOUT ───────────────────────────── -->
+<section id="about" class="section border-t">
+  <div class="s-wrap">
+    <div class="about-grid">
+      <div class="about-photo reveal">
+        <img src="https://images.pexels.com/photos/30269788/pexels-photo-30269788.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Farmer in lush green field" loading="lazy">
+        <div class="about-photo-grad"></div>
+        <div class="about-photo-badge">
+          <div class="about-photo-loc"><div class="roots">Roots</div><div class="place">Andhra Pradesh</div></div>
+          <span class="farmer-badge">Farmer</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <span class="s-eyebrow eyebrow-mint">About Giri</span>
+        <h2 class="s-title">A farmer building his<br><span class="shimmer-text">future with technology.</span></h2>
+        <p class="about-body">Giri is a young farmer from Andhra Pradesh who is building a new kind of career by combining <span class="hl-mint">agriculture</span> with <span class="hl-gold">technology</span> and <span class="hl-ink">entrepreneurship</span>.</p>
+        <p class="about-body">My background is agriculture, but I believe technology can multiply what agriculture and entrepreneurship can achieve. I'm learning software, building digital businesses, creating online content, and exploring algorithmic trading — one disciplined day at a time.</p>
+        <div class="about-list">
+          <div class="about-item">Agriculture &amp; Farming</div>
+          <div class="about-item">Software &amp; Modern Tech</div>
+          <div class="about-item">Digital Businesses</div>
+          <div class="about-item">Content Creation</div>
+          <div class="about-item">Stocks · Options · Algo</div>
+          <div class="about-item">Power Platform · Automation</div>
+          <div class="about-item">AI-powered Tools</div>
+          <div class="about-item">Always Learning</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FARMING ───────────────────────── -->
+<section id="farming" class="section border-t">
+  <div class="s-wrap">
+    <div class="farming-grid">
+      <div class="reveal">
+        <span class="s-eyebrow eyebrow-gold">My Roots</span>
+        <h2 class="s-title">My Roots Are in <span style="color:var(--mint)">Farming.</span></h2>
+        <p style="font-size:1rem;color:var(--stone3);line-height:1.8;margin-bottom:2rem">Farming is not just an occupation — it is where my journey started. Every early morning on the farm taught me discipline, patience, and the quiet joy of building something real.</p>
+        <div class="farming-items">
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>My Farm</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>Farming Activities</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Agriculture Experiments</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Modern Farming</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 3 8 9 8z"/></svg>Hydroponics</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Smart Agriculture</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>Farm-to-Family</div>
+          <div class="fi-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Agri Business Ideas</div>
+        </div>
+        <div class="farming-vision reveal">
+          <div class="vl">Vision</div>
+          <h4>Build a modern agriculture ecosystem</h4>
+          <p>Connecting farming, technology, business, and consumers — from the soil to the software.</p>
+        </div>
+      </div>
+      <div class="farm-collage reveal">
+        <div class="fc-main">
+          <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80" alt="Farm fields">
+        </div>
+        <div class="fc-sm">
+          <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=400&q=80" alt="Farm morning">
+        </div>
+        <div class="fc-seed">
+          <h4>Seed <span class="arr">→</span> Soil <span class="arr">→</span> Software</h4>
+          <div class="fc-seed-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── JOURNEY ───────────────────────── -->
+<section id="journey" class="section border-t">
+  <div class="s-wrap">
+    <div class="journey-head reveal">
+      <span class="s-eyebrow eyebrow-mint">My Journey</span>
+      <h2 class="s-title journey-title">Farmer → Learner → Builder →<br>Creator → Trader → <span class="hl-gold">Future</span></h2>
+      <p style="font-size:.97rem;color:var(--stone4);max-width:460px;margin-inline:auto;line-height:1.7;margin-top:.75rem">An honest timeline of where I started and what I'm becoming.</p>
+    </div>
+    <div class="j-grid reveal">
+      <div class="jl">
+        <div class="jcard">
+          <div class="jcard-top"><div class="jcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg></div><span class="jcard-badge">Roots</span></div>
+          <h3>Growing up on the farm</h3><div class="jplace">Andhra Pradesh, India</div>
+          <p>Learned patience, discipline, and the value of hard work from agriculture and rural life.</p>
+        </div>
+      </div>
+      <div class="jc"><div class="jline"></div><div class="jdot"></div><div class="jline"></div></div>
+      <div class="jr"></div>
+      <div class="jl"></div>
+      <div class="jc"><div class="jline"></div><div class="jdot"></div><div class="jline"></div></div>
+      <div class="jr">
+        <div class="jcard">
+          <div class="jcard-top"><div class="jcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><span class="jcard-badge">Learner</span></div>
+          <h3>Discovered technology</h3><div class="jplace">Self-taught</div>
+          <p>Started learning Python, JavaScript, Node.js, React, SQL, Git — and fell in love with building.</p>
+        </div>
+      </div>
+      <div class="jl">
+        <div class="jcard">
+          <div class="jcard-top"><div class="jcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div><span class="jcard-badge">Builder</span></div>
+          <h3>Power Platform &amp; Automation</h3><div class="jplace">Business Apps</div>
+          <p>Built real applications with Power Apps, Power Automate, Dataverse, SharePoint and Power BI.</p>
+        </div>
+      </div>
+      <div class="jc"><div class="jline"></div><div class="jdot"></div><div class="jline"></div></div>
+      <div class="jr"></div>
+      <div class="jl"></div>
+      <div class="jc"><div class="jline"></div><div class="jdot"></div><div class="jline"></div></div>
+      <div class="jr">
+        <div class="jcard">
+          <div class="jcard-top"><div class="jcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div><span class="jcard-badge">Creator</span></div>
+          <h3>Content in Public</h3><div class="jplace">YouTube · Instagram</div>
+          <p>Sharing what I learn — money ideas, tech, business, agriculture — building a personal brand.</p>
+        </div>
+      </div>
+      <div class="jl">
+        <div class="jcard">
+          <div class="jcard-top"><div class="jcard-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="jcard-badge">Trader</span></div>
+          <h3>Markets, Data &amp; Automation</h3><div class="jplace">Research</div>
+          <p>Exploring algorithmic trading, backtesting, options data, risk engines and AI-assisted research.</p>
+        </div>
+      </div>
+      <div class="jc"><div class="jline"></div><div class="jdot jdot-future" style="background:var(--gold)"></div><div class="jline"></div></div>
+      <div class="jr">
+        <div class="jcard jcard-future">
+          <div class="jcard-top"><div class="jcard-ico" style="background:rgba(212,162,76,.25)"><svg viewBox="0 0 24 24" fill="none" stroke="#d4a24c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><span class="jcard-badge">Future</span></div>
+          <h3>Building the next chapter</h3><div class="jplace" style="color:var(--gold)">Farm × Software × AI</div>
+          <p>A career that combines software, automation and agriculture — while staying rooted.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SKILLS ───────────────────────── -->
+<section id="skills" class="section border-t">
+  <div class="s-wrap">
+    <div class="skills-top reveal">
+      <div>
+        <span class="s-eyebrow eyebrow-gold">Skills</span>
+        <h2 class="s-title">Tools I use to build.</h2>
+        <p style="font-size:.97rem;color:var(--stone4);max-width:480px;line-height:1.7;margin-top:.5rem">Honest about where I am — some I'm learning, some experimenting, some I've shipped with.</p>
+      </div>
+      <div class="skills-filters">
+        <button class="sf">Learning</button>
+        <button class="sf active">Experimenting</button>
+        <button class="sf">Shipped</button>
+      </div>
+    </div>
+    <div class="sg-grid reveal">
+      <div class="sg"><div class="sg-head"><span class="sg-name">Programming</span><span class="sg-count">8 Tools</span></div><div class="sk-list"><span class="sk">Python</span><span class="sk">JavaScript</span><span class="sk">Node.js</span><span class="sk">React</span><span class="sk">MERN</span><span class="sk">SQL</span><span class="sk">Git</span><span class="sk">REST APIs</span></div></div>
+      <div class="sg"><div class="sg-head"><span class="sg-name">Power Platform</span><span class="sg-count">6 Tools</span></div><div class="sk-list"><span class="sk">Power Apps</span><span class="sk">Power Automate</span><span class="sk">Dataverse</span><span class="sk">SharePoint</span><span class="sk">Power BI</span><span class="sk">CLI</span></div></div>
+      <div class="sg"><div class="sg-head"><span class="sg-name">AI / ML</span><span class="sg-count">6 Tools</span></div><div class="sk-list"><span class="sk">Machine Learning</span><span class="sk">TensorFlow</span><span class="sk">AI Automation</span><span class="sk">Time-series</span><span class="sk">RL concepts</span><span class="sk">AI workflows</span></div></div>
+      <div class="sg"><div class="sg-head"><span class="sg-name">Trading Technology</span><span class="sg-count">6 Tools</span></div><div class="sk-list"><span class="sk">Broker APIs</span><span class="sk">WebSockets</span><span class="sk">Data Pipelines</span><span class="sk">Backtesting</span><span class="sk">Risk Management</span><span class="sk">Paper Trading</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PROJECTS ───────────────────────── -->
+<section id="projects" class="section border-t">
+  <div class="s-wrap">
+    <div class="proj-header reveal">
+      <div>
+        <span class="s-eyebrow eyebrow-mint">Projects</span>
+        <h2 class="s-title">Things I'm building.</h2>
+      </div>
+      <p class="proj-header-right">A portfolio of real experiments — some shipped, some in research, all part of the journey.</p>
+    </div>
+    <div class="proj-grid reveal">
+      <div class="pc wide card-glow">
+        <div class="pc-header">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="pc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+            <div class="pc-meta"><div class="pc-label">Research · Ongoing</div><div class="pc-title">Algo Trading System</div></div>
+          </div>
+          <span class="pc-num">01</span>
+        </div>
+        <p class="pc-desc">Python-based research &amp; automation platform with broker integration, live WebSocket data, backtesting, a risk engine, paper trading, options-chain analysis and Telegram alerts.</p>
+        <div class="pc-tags"><span class="pt">Python</span><span class="pt">WebSockets</span><span class="pt">Broker APIs</span><span class="pt">Backtesting</span><span class="pt">Risk Engine</span></div>
+        <div class="pc-foot"><a href="#" class="pc-link">Learn more →</a></div>
+      </div>
+      <div class="pc">
+        <div class="pc-header">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="pc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+            <div class="pc-meta"><div class="pc-label">Enterprise Apps</div><div class="pc-title">Power Platform Apps</div></div>
+          </div>
+          <span class="pc-num">02</span>
+        </div>
+        <p class="pc-desc">Registration apps, navigation systems, business automation and BI dashboards using Power Apps, Automate, Dataverse and Power BI.</p>
+        <div class="pc-tags"><span class="pt">Power Apps</span><span class="pt">Automate</span><span class="pt">Dataverse</span><span class="pt">Power BI</span></div>
+        <div class="pc-foot"><a href="#" class="pc-link">Learn more →</a></div>
+      </div>
+      <div class="pc">
+        <div class="pc-header">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="pc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 3 8 9 8z"/></svg></div>
+            <div class="pc-meta"><div class="pc-label">Agritech</div><div class="pc-title">Farm-to-Family</div></div>
+          </div>
+          <span class="pc-num">03</span>
+        </div>
+        <p class="pc-desc">Direct farmer-to-consumer marketplace connecting farms to families with technology — profiles, fresh produce, orders and delivery.</p>
+        <div class="pc-tags"><span class="pt">Next.js</span><span class="pt">Node</span><span class="pt">MongoDB</span><span class="pt">Maps</span></div>
+        <div class="pc-foot"><a href="#" class="pc-link">Learn more →</a></div>
+      </div>
+      <div class="pc">
+        <div class="pc-header">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="pc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div>
+            <div class="pc-meta"><div class="pc-label">MERN · Commerce</div><div class="pc-title">Indian Food Platform</div></div>
+          </div>
+          <span class="pc-num">04</span>
+        </div>
+        <p class="pc-desc">E-commerce platform for an Indian food business with product management, UPI/payment flows, orders and delivery tracking.</p>
+        <div class="pc-tags"><span class="pt">React</span><span class="pt">Node.js</span><span class="pt">MongoDB</span><span class="pt">UPI</span></div>
+        <div class="pc-foot"><a href="#" class="pc-link">Learn more →</a></div>
+      </div>
+      <div class="pc">
+        <div class="pc-header">
+          <div style="display:flex;align-items:center;gap:.85rem">
+            <div class="pc-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></div>
+            <div class="pc-meta"><div class="pc-label">Content · Brand</div><div class="pc-title">Personal Content Brand</div></div>
+          </div>
+          <span class="pc-num">05</span>
+        </div>
+        <p class="pc-desc">Giri Pranathi Official — YouTube &amp; Instagram experiments around business, technology, agriculture, motivation and online income.</p>
+        <div class="pc-tags"><span class="pt">YouTube</span><span class="pt">Instagram</span><span class="pt">Editing</span><span class="pt">Storytelling</span></div>
+        <div class="pc-foot"><a href="#" class="pc-link">Learn more →</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TRADING ───────────────────────── -->
+<section id="trading" class="section border-t">
+  <div class="s-wrap">
+    <div class="trading-head reveal">
+      <span class="s-eyebrow eyebrow-mint">Markets · Data · Automation</span>
+      <h2 class="s-title">Systematic <span style="color:var(--mint)">market</span> <span style="color:var(--gold)">research.</span></h2>
+      <p style="font-size:.97rem;color:var(--stone4);max-width:580px;line-height:1.7;margin-top:.5rem">Trading here is research, education, and technology experimentation — not financial advice or guaranteed profit.</p>
+    </div>
+    <div class="pipeline reveal">
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><span class="pipe-n">01</span></div><div class="pipe-title">Market Data</div><div class="pipe-desc">NSE / BSE feeds, WebSockets, ticks</div><div class="pipe-arr">→</div></div>
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><span class="pipe-n">02</span></div><div class="pipe-title">Analysis</div><div class="pipe-desc">Indicators, options chain, OI, regime</div><div class="pipe-arr">→</div></div>
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><span class="pipe-n">03</span></div><div class="pipe-title">Strategy</div><div class="pipe-desc">Rules, ML models, signal engine</div><div class="pipe-arr">→</div></div>
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><span class="pipe-n">04</span></div><div class="pipe-title">Risk Engine</div><div class="pipe-desc">Position sizing, stops, drawdown</div><div class="pipe-arr">→</div></div>
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="pipe-n">05</span></div><div class="pipe-title">Signal</div><div class="pipe-desc">Orders, alerts, Telegram push</div><div class="pipe-arr">→</div></div>
+      <div class="pipe-card"><div class="pipe-top"><div class="pipe-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><span class="pipe-n">06</span></div><div class="pipe-title">Paper Trading</div><div class="pipe-desc">Simulation, P&amp;L, performance</div><div class="pipe-arr">↩</div></div>
+    </div>
+    <div class="pipe-fb reveal">Feedback Loop · Continuous Learning</div>
+    <div class="ta-grid reveal">
+      <div class="ta"><div class="ta-label">Markets</div><h4>Equity</h4><p>Trend, momentum, mean reversion strategies</p></div>
+      <div class="ta"><div class="ta-label">Derivatives</div><h4>Futures &amp; Options</h4><p>Greeks, IV, structures, open interest</p></div>
+      <div class="ta"><div class="ta-label">Volatility</div><h4>Regime Detection</h4><p>VIX studies, volatility modeling, regime shifts</p></div>
+      <div class="ta"><div class="ta-label">Data</div><h4>Open Interest</h4><p>OI shifts, PCR, max pain analysis</p></div>
+      <div class="ta"><div class="ta-label">Testing</div><h4>Backtesting</h4><p>Walk-forward, slippage, transaction costs</p></div>
+      <div class="ta"><div class="ta-label">Capital</div><h4>Risk Management</h4><p>Kelly criterion, VaR, capital allocation rules</p></div>
+    </div>
+    <div class="disclaimer reveal">Disclaimer: All trading content is educational and represents personal research. It is not investment advice.</div>
+  </div>
+</section>
+
+<!-- ── CONTENT ───────────────────────── -->
+<section id="content" class="section border-t">
+  <div class="s-wrap">
+    <div class="content-head reveal">
+      <div>
+        <span class="s-eyebrow eyebrow-mint">Content · Giri Pranathi Official</span>
+        <h2 class="s-title">I'm building in public.</h2>
+        <p style="font-size:.97rem;color:var(--stone4);line-height:1.7;max-width:500px;margin-top:.5rem">I share what I'm learning, testing, building, and discovering — from farming and technology to business and markets.</p>
+      </div>
+      <div class="plat-btns">
+        <a href="https://youtube.com" target="_blank" rel="noopener" class="plat-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--bg)"/></svg>YouTube
+        </a>
+        <a href="https://instagram.com" target="_blank" rel="noopener" class="plat-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram
+        </a>
+      </div>
+    </div>
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stone4);margin-bottom:1rem" class="reveal">Latest Videos</div>
+    <div class="vid-grid reveal">
+      <div class="vid-card vc-biz"><div class="vid-thumb"><span class="vid-cat">Business</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">3 Money-Making Ideas Every Beginner Should Try</div><div class="vid-date">10 Oct 2026</div></div></div>
+      <div class="vid-card vc-mot"><div class="vid-thumb"><span class="vid-cat">Motivation</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">From Farm to Future — My Story</div><div class="vid-date">10 Oct 2026</div></div></div>
+      <div class="vid-card vc-trd"><div class="vid-thumb"><span class="vid-cat">Trading</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">Setting Up My First Algo Trading System</div><div class="vid-date">10 Oct 2026</div></div></div>
+      <div class="vid-card vc-agr"><div class="vid-thumb"><span class="vid-cat">Agriculture</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">Hydroponics Explained (in Telugu)</div><div class="vid-date">10 Oct 2026</div></div></div>
+      <div class="vid-card vc-eco"><div class="vid-thumb"><span class="vid-cat">E-Commerce</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">Shopify + Dropshipping Reality Check</div><div class="vid-date">10 Oct 2026</div></div></div>
+      <div class="vid-card vc-grw"><div class="vid-thumb"><span class="vid-cat">Growth</span><div class="vid-play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div><div class="vid-info"><div class="vid-title">Why I Learn Every Single Day</div><div class="vid-date">10 Oct 2026</div></div></div>
+    </div>
+    <div class="reels-label reveal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>Latest Reels
+    </div>
+    <div class="reels-grid reveal">
+      <div class="reel"><span class="reel-cat">Business</span></div>
+      <div class="reel"><span class="reel-cat">Agriculture</span></div>
+      <div class="reel"><span class="reel-cat">Tech</span></div>
+      <div class="reel"><span class="reel-cat">Trading</span></div>
+      <div class="reel"><span class="reel-cat">E-Com</span></div>
+      <div class="reel"><span class="reel-cat">Motivation</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── DAILY BUILDER ───────────────── -->
+<section id="daily" class="section border-t">
+  <div class="s-wrap">
+    <span class="s-eyebrow eyebrow-mint reveal">Daily Builder</span>
+    <h2 class="s-title reveal">What I'm working on.</h2>
+    <p style="font-size:.97rem;color:var(--stone4);margin-bottom:2.5rem;line-height:1.7" class="reveal">A live feed from the farm, the desk, and the market.</p>
+    <div class="daily-grid reveal">
+      <div class="dc"><div class="dc-label">Today</div><h4>Trading system improvements</h4><p>Refining the risk engine and adding a new options-chain analyzer.</p><div class="dc-date">10 Oct 2026</div></div>
+      <div class="dc"><div class="dc-label">This Week</div><h4>Building, testing, researching, creating</h4><p>Farm work in the mornings; coding, backtesting, and shooting content in the evenings.</p><div class="dc-date">10 Oct 2026</div></div>
+      <div class="dc"><div class="dc-label">Current Focus</div><h4>Technology + Agriculture + Business</h4><p>Shipping small, learning fast, staying rooted.</p><div class="dc-date">10 Oct 2026</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── BLOG ───────────────────────────── -->
+<section id="blog" class="section border-t">
+  <div class="s-wrap">
+    <div class="blog-header reveal">
+      <div><span class="s-eyebrow eyebrow-mint">Notes</span><h2 class="s-title">Journal &amp; essays.</h2></div>
+      <a href="#" class="blog-link">Read all →</a>
+    </div>
+    <div class="blog-grid reveal">
+      <div class="bcard"><div class="bcard-cat">Farming</div><h3>What Farming Taught Me About Business</h3><p>Patience, seasons, and compounding — lessons from the field that apply to every startup.</p><a href="#" class="bcard-read">Read →</a></div>
+      <div class="bcard"><div class="bcard-cat">Personal Journey</div><h3>Why I Started Learning Technology</h3><p>How a young farmer from Andhra Pradesh fell in love with code.</p><a href="#" class="bcard-read">Read →</a></div>
+      <div class="bcard"><div class="bcard-cat">Trading</div><h3>Building My First Trading Automation System</h3><p>Broker APIs, WebSockets, backtesting, and hard lessons from paper trading.</p><a href="#" class="bcard-read">Read →</a></div>
+      <div class="bcard"><div class="bcard-cat">Agritech</div><h3>Can Technology Transform Farming?</h3><p>Sensors, dashboards, and direct-to-consumer commerce for Indian farms.</p><a href="#" class="bcard-read">Read →</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ───────────────────────── -->
+<section id="contact" class="section border-t">
+  <div class="s-wrap">
+    <div class="contact-inner">
+      <div class="reveal">
+        <span class="s-eyebrow eyebrow-gold">Contact</span>
+        <h2 class="s-title">Let's build <span style="color:var(--mint)">something.</span></h2>
+        <p style="font-size:1.05rem;color:var(--stone3);line-height:1.75;margin-top:.75rem">I'm always interested in learning, collaborating, building, and exploring new ideas — from farm-tech to trading systems to content.</p>
+        <div class="soc-btns">
+          <a class="soc-btn" href="mailto:seshagiri.y93@gmail.com"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Email</a>
+          <a class="soc-btn" href="https://linkedin.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</a>
+          <a class="soc-btn" href="https://github.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg>GitHub</a>
+          <a class="soc-btn" href="https://youtube.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#0b0f0c"/></svg>YouTube</a>
+          <a class="soc-btn" href="https://instagram.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>Instagram</a>
+        </div>
+      </div>
+      <form class="cf reveal" id="contactForm" novalidate>
+        <div class="cf-row">
+          <div class="cf-field"><label class="cf-label" for="cf-name">Name</label><input class="cf-input" id="cf-name" type="text" placeholder="Your name" required></div>
+          <div class="cf-field"><label class="cf-label" for="cf-email">Email</label><input class="cf-input" id="cf-email" type="email" placeholder="you@company.com" required></div>
+        </div>
+        <div class="cf-field"><label class="cf-label" for="cf-subj">Subject</label><input class="cf-input" id="cf-subj" type="text" placeholder="Collab · Hire · Just say hi"></div>
+        <div class="cf-field"><label class="cf-label" for="cf-msg">Message</label><textarea class="cf-textarea" id="cf-msg" rows="4" placeholder="Tell me about what you're building..." required></textarea></div>
+        <div class="cf-ok" id="cfOk"></div>
+        <div class="cf-footer">
+          <span class="cf-footer-note">Usually replies within a day.</span>
+          <button type="submit" class="cf-btn">Send Message →</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ───────────────────────── -->
+<footer>
+  <div class="ft-inner">
+    <div>
+      <div class="ft-logo">
+        <div class="ft-logo-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 3 8 9 8z"/><path d="M12 12c0-5 4-8 9-8 0 5-3 8-9 8z"/></svg></div>
+        <span class="ft-logo-name">Giri</span>
+      </div>
+      <div class="ft-tagline">Farmer · Builder · Creator · Learner</div>
+      <p class="ft-desc">Building a future where agriculture, technology, business, and creativity work together.</p>
+      <div class="ft-socials">
+        <a class="ft-soc" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.4a2.78 2.78 0 0 0 1.95-1.97A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--bg)"/></svg></a>
+        <a class="ft-soc" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg></a>
+        <a class="ft-soc" href="https://github.com" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/></svg></a>
+        <a class="ft-soc" href="https://linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        <a class="ft-soc" href="mailto:seshagiri.y93@gmail.com" aria-label="Email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a>
+      </div>
+    </div>
+    <nav class="ft-nav">
+      <h5>Explore</h5>
+      <ul><li><a href="#home">Home</a></li><li><a href="#about">About</a></li><li><a href="#farming">Farming</a></li><li><a href="#skills">Skills</a></li><li><a href="#trading">Trading</a></li><li><a href="#daily">Diary</a></li><li><a href="#contact">Contact</a></li></ul>
+    </nav>
+    <nav class="ft-nav">
+      <h5>Elsewhere</h5>
+      <ul><li><a href="#about">About</a></li><li><a href="#journey">Journey</a></li><li><a href="#projects">Projects</a></li><li><a href="#content">Content</a></li><li><a href="#blog">Blog</a></li></ul>
+    </nav>
+  </div>
+  <div class="ft-bottom">
+    <p>© 2026 Giri. Built with roots and code.</p>
+    <p>From Farm to Future.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // Mobile nav
+  const burger=document.getElementById('burgerBtn'),mob=document.getElementById('navMobile');
+  burger.addEventListener('click',()=>mob.classList.toggle('open'));
+  mob.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mob.classList.remove('open')));
+  document.addEventListener('click',e=>{if(!e.target.closest('.nav'))mob.classList.remove('open')});
+
+  // Intersection observer for reveal animations
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)}});
+  },{threshold:.07,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+  // Skills filter
+  document.querySelectorAll('.sf').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.sf').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Contact form
+  const form=document.getElementById('contactForm'),ok=document.getElementById('cfOk');
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const n=document.getElementById('cf-name').value.trim();
+    const em=document.getElementById('cf-email').value.trim();
+    const m=document.getElementById('cf-msg').value.trim();
+    const fields=[document.getElementById('cf-name'),document.getElementById('cf-email'),document.getElementById('cf-msg')];
+    if(!n||!em||!m){fields.forEach(el=>{if(!el.value.trim())el.style.borderColor='#f87171';else el.style.borderColor=''});return}
+    ok.textContent='Thanks '+n+'! I\'ll get back to you soon.';
+    ok.classList.add('show');
+    form.reset();
+    fields.forEach(el=>el.style.borderColor='');
+    setTimeout(()=>ok.classList.remove('show'),5000);
+  });
+  form.querySelectorAll('input,textarea').forEach(el=>el.addEventListener('input',()=>el.style.borderColor=''));
+})();
+</script>
